@@ -349,7 +349,6 @@ talentStats = ruleset
         Reach = string {}
         Difficulty = string {}
         Duration = string {}
-        Effect = string { multiline = true }
     }
 }
 
