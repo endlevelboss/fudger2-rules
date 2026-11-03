@@ -38,6 +38,28 @@ levelDM (char, trained, level) = if trained then level else untrainedDM (char)
 skillDM (char, trained, level, characteristic) =
     levelDM (char, trained, level) + dmFor (char, characteristic)
 
+damageDiceCount (damage) = toInt (first (split ("D", damage)))
+
+damageBonus (damage) =
+    if count (split ("D", damage)) > 1 then toInt (replace ("+", "", item (1, split ("D", damage))))
+    else 0
+
+noDamage = ([1d6], ((baseline, throws)-> baseline))
+
+damageDice (n) =
+    switch n
+    case 1 then 1d6
+    case 2 then 2d6
+    case 3 then 3d6
+    case 4 then 4d6
+    case 5 then 5d6
+    case 6 then 6d6
+    case 7 then 7d6
+    case 8 then 8d6
+    case 9 then 9d6
+    case 10 then 10d6
+    else noDamage
+
 condition (str, dex, end) =
     if str + dex + end < 1 then "Dead"
     else if str < 1 then "Unconscious"
@@ -266,12 +288,19 @@ weaponStats = ruleset
     }
     Stats = table
     {
-        Skill = string { keys = ["Gun Combat", "Heavy Weapons", "Melee", "Athletics", "Explosives"] }
+        Skill = string { keys = ["Melee (blade)", "Melee (bludgeon)", "Melee (unarmed)", "Gun Combat (pistol)", "Gun Combat (rifle)", "Gun Combat (archaic)", "Heavy Weapons (portable)", "Athletics (dexterity)", "Explosives"] }
         Range = string {}
-        Damage = string { default = "3D" }
+        'Damage dice' = string { default = "3D"  visible = none }
+        Damage = integer
+        {
+            value = damageBonus ('Damage dice')
+            render = 'Damage dice'
+            valuedice = damageDice (damageDiceCount ('Damage dice'))
+        }
+        Kg = string {}
+        Requisition = string {}
         Magazine = string {}
-        Mass = string {}
-        Cost = string {}
+        'Magazine Requisition' = string {}
         Traits = string {}
         Ammo = integer { editable = live }
     }
@@ -286,10 +315,9 @@ armourStats = ruleset
     Stats = table
     {
         Protection = integer { default = 0 }
-        Mass = string {}
-        Cost = string {}
-        'Required Skill' = string {}
-        Traits = string {}
+        Rad = string {}
+        Kg = string {}
+        Requisition = string {}
     }
 }
 
@@ -301,8 +329,9 @@ equipmentStats = ruleset
     }
     Stats = table
     {
-        Mass = string {}
-        Cost = string {}
+        Category = string {}
+        Kg = string {}
+        Requisition = string {}
         Quantity = integer { default = 1  editable = live }
     }
 }
