@@ -43,6 +43,11 @@
       "name": "Gurps lite",
       "location": "/systems/Gurps/gurpslite.frules",
       "description": "Beginnings of gurpslite implementation"
+    },
+    {
+      "name": "Dark Conspiracy",
+      "location": "/systems/darkconspiracy/darkconspiracy.frules",
+      "description": "Dark Conspiracy: The Unseen War (Mongoose 2026)"
     }
   ]
 }

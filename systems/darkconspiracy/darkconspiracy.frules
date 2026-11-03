@@ -1,0 +1,339 @@
+#include "/systems/common.frules"
+
+characteristicDM (score) =
+    if score < 1 then -3
+    else if score < 3 then -2
+    else if score < 6 then -1
+    else if score < 9 then 0
+    else if score < 12 then 1
+    else if score < 15 then 2
+    else 3
+
+dmFor (char, name) =
+    switch name
+    case "STR" then char.Characteristics.'STR'.DM
+    case "DEX" then char.Characteristics.'DEX'.DM
+    case "END" then char.Characteristics.'END'.DM
+    case "INT" then char.Characteristics.'INT'.DM
+    case "EDU" then char.Characteristics.'EDU'.DM
+    case "CHA" then char.Characteristics.'CHA'.DM
+    case "EMP" then char.Characteristics.'EMP'.DM
+    else 0
+
+boonRoll = ([3d6], ((baseline, throws)->
+    baseline + first (throws).bonus + sum (first (throws).rolls) - min (first (throws).rolls)))
+
+baneRoll = ([3d6], ((baseline, throws)->
+    baseline + first (throws).bonus + sum (first (throws).rolls) - max (first (throws).rolls)))
+
+checkRoll (char) =
+    if char.Checks.Roll == "Boon" then boonRoll
+    else if char.Checks.Roll == "Bane" then baneRoll
+    else 2d6
+
+untrainedDM (char) = -3 + min (3, max (0, char.Checks.'Jack of All Trades'))
+
+levelDM (char, trained, level) = if trained then level else untrainedDM (char)
+
+skillDM (char, trained, level, characteristic) =
+    levelDM (char, trained, level) + dmFor (char, characteristic)
+
+condition (str, dex, end) =
+    if str + dex + end < 1 then "Dead"
+    else if str < 1 then "Unconscious"
+    else if dex < 1 then "Unconscious"
+    else if end < 1 then "Wounded"
+    else "Fit"
+
+darkInfluenceEffect (di) =
+    if di < 4 then "None"
+    else if di < 6 then "STR or END +1"
+    else if di < 11 then "Other of STR or END +D3"
+    else if di < 16 then "Dark toll on natural 2 or 12"
+    else if di < 26 then "Gains EMP and Empathy Use"
+    else if di < 36 then "Physical aspect of a Dark Minion"
+    else if di < 51 then "Craving, lose END monthly"
+    else if di < 76 then "INT or CHA -D3, EMP +1"
+    else if di < 86 then "Insatiable hunger"
+    else if di < 101 then "Dark Minions recognise them"
+    else "Subject to Instability"
+
+skillNames = [
+    "Advocate", "Animals", "Art", "Athletics", "Business", "Carouse", "Computers",
+    "Deception", "Diplomat", "Drive", "Electronics", "Empathy Use", "Engineer", "Explosives",
+    "Gambler", "Gun Combat", "Heavy Weapons", "Investigate", "Language", "Leadership",
+    "Mechanic", "Medic", "Melee", "Navigation", "Persuade", "Pilot", "Profession", "Recon",
+    "Science", "Seafarer", "Stealth", "Streetwise", "Survival", "Tactics"]
+
+characterTable = ruleset
+{
+    Operative = table
+    {
+        tableLayout = layout { columns = 2 }
+        Hometown = string {}
+        Age = integer { default = 18 }
+        Career = string {}
+        Assignment = string {}
+        Rank = string {}
+        Condition = condition (Characteristics.'STR'.Current, Characteristics.'DEX'.Current, Characteristics.'END'.Current)
+    }
+
+    Checks = table
+    {
+        tableLayout = layout { columns = 2 }
+        Roll = selector
+        {
+            options = ["Bane", "Normal", "Boon"]
+            labels = ["Bane", "Normal", "Boon"]
+            colors = ["red", "white", "green"]
+            hold = ["Ctrl", "", "Shift"]
+            default = "Normal"
+            editable = live
+            save = nosave
+        }
+        Initiative = modifier
+        {
+            value = max (Characteristics.'DEX'.DM, Characteristics.'INT'.DM)
+            valuedice = checkRoll (characterTable)
+        }
+        Unskilled = modifier
+        {
+            value = untrainedDM (characterTable)
+            valuedice = checkRoll (characterTable)
+        }
+        'Jack of All Trades' = integer { default = 0  minvalue = 0  maxvalue = 3 }
+    }
+
+    Characteristics = keyvalues
+    {
+        singular = "Characteristic"
+        keys = ["STR", "DEX", "END", "INT", "EDU", "CHA", "EMP"]
+        valueType = custom
+        {
+            Max = integer { default = 7  minvalue = 0  maxvalue = 15 }
+            Current = integer { default = Max  minvalue = 0  editable = live }
+            DM = modifier
+            {
+                value = characteristicDM (Current)
+                valuedice = checkRoll (characterTable)
+            }
+        }
+    }
+
+    Skills = keyvalues
+    {
+        singular = "Skill"
+        editablekeys = character
+        keys = skillNames
+        valueType = custom
+        {
+            Trained = bool { default = false }
+            Level = integer { default = 0  minvalue = 0 }
+            Characteristic = string { keys = ["", "STR", "DEX", "END", "INT", "EDU", "CHA", "EMP"]  default = ""  editable = live }
+            Check = modifier
+            {
+                value = skillDM (characterTable, Trained, Level, Characteristic)
+                valuedice = checkRoll (characterTable)
+            }
+        }
+    }
+
+    Company = table
+    {
+        tableLayout = layout { columns = 2 }
+        Trust = integer { default = 0  editable = live }
+        'Dark Influence' = integer { default = 0  minvalue = 0  editable = live }
+        'Missions Completed' = integer { default = 0  minvalue = 0  editable = live }
+        'Dark Influence effect' = darkInfluenceEffect ('Dark Influence')
+        Training = string { multiline = true }
+    }
+
+    'HQ Information' = table
+    {
+        tableLayout = layout { columns = 2 }
+        'HQ Location' = string {}
+        'Improvement Level' = integer { default = 0 }
+        'Cell Resources' = string { editable = live }
+    }
+
+    'Enemies Rivals Allies Contacts' = list
+    {
+        singular = "Connection"
+        editable = character
+        tableLayout = layout { size = wide }
+        valueType = custom
+        {
+            Type = string { keys = ["Ally", "Contact", "Rival", "Enemy"]  default = "Contact" }
+            Name = string {}
+            Notes = string {}
+        }
+    }
+
+    Weapons = list
+    {
+        source = secondary.Weapons
+        singular = "Weapon"
+        editable = character
+        tableLayout = layout { size = wide }
+    }
+
+    Armour = list
+    {
+        source = secondary.Armour
+        singular = "Armour"
+        editable = character
+        tableLayout = layout { size = wide }
+    }
+
+    Equipment = list
+    {
+        source = secondary.Equipment
+        singular = "Equipment"
+        editable = character
+        tableLayout = layout { size = wide }
+    }
+
+    'Empathic Talents' = list
+    {
+        source = secondary.'Empathic Talents'
+        singular = "Empathic talent"
+        editable = character
+        tableLayout = layout { size = wide }
+    }
+
+    'Career History' = list
+    {
+        singular = "Term"
+        editable = character
+        tableLayout = layout { size = wide }
+        valueType = custom
+        {
+            Term = integer { default = 1 }
+            'Career and Assignment' = string {}
+            Skill = string {}
+            Survived = bool { default = true }
+            'Event or Mishap' = string {}
+            Advanced = bool { default = false }
+            Trust = integer { default = 0 }
+            'Dark Influence' = integer { default = 0 }
+        }
+    }
+
+    Notes = table
+    {
+        tableLayout = layout { rowTitle = hidden  size = wide }
+        Notes = string { multiline = true }
+    }
+}
+
+minionTable = ruleset
+{
+    Stats = table
+    {
+        tableLayout = layout { columns = 2 }
+        Hits = integer { default = 10 }
+        'Current Hits' = integer { default = Hits  minvalue = 0  editable = live }
+        EMP = integer { default = 0 }
+        'Current EMP' = integer { default = EMP  minvalue = 0  editable = live }
+        Instability = string {}
+        Speed = string { default = "6m" }
+        Protection = integer { default = 0 }
+        Initiative = modifier { default = 0  valuedice = 2d6 }
+        Check = modifier { default = 0  valuedice = 2d6 }
+    }
+    Abilities = table
+    {
+        Skills = string { multiline = true }
+        Esoterica = string {}
+        Attacks = string { multiline = true }
+        Traits = string { multiline = true }
+        Behaviour = string {}
+    }
+    Weapons = list
+    {
+        source = secondary.Weapons
+        singular = "Weapon"
+        editable = character
+        tableLayout = layout { size = wide }
+    }
+}
+
+weaponStats = ruleset
+{
+    rulesetConfiguration =
+    {
+        defaultImage = "/images/armour.svg"
+    }
+    Stats = table
+    {
+        Skill = string { keys = ["Gun Combat", "Heavy Weapons", "Melee", "Athletics", "Explosives"] }
+        Range = string {}
+        Damage = string { default = "3D" }
+        Magazine = string {}
+        Mass = string {}
+        Cost = string {}
+        Traits = string {}
+        Ammo = integer { editable = live }
+    }
+}
+
+armourStats = ruleset
+{
+    rulesetConfiguration =
+    {
+        defaultImage = "/images/armour.svg"
+    }
+    Stats = table
+    {
+        Protection = integer { default = 0 }
+        Mass = string {}
+        Cost = string {}
+        'Required Skill' = string {}
+        Traits = string {}
+    }
+}
+
+equipmentStats = ruleset
+{
+    rulesetConfiguration =
+    {
+        defaultImage = "/images/armour.svg"
+    }
+    Stats = table
+    {
+        Mass = string {}
+        Cost = string {}
+        Quantity = integer { default = 1  editable = live }
+    }
+}
+
+talentStats = ruleset
+{
+    rulesetConfiguration =
+    {
+        defaultImage = "/images/spell.svg"
+    }
+    Stats = table
+    {
+        Speciality = string { keys = ["Computers", "Drain", "Foreboding", "Healing", "Project Mind", "Sense Mind"] }
+        'EMP Cost' = string {}
+        Reach = string {}
+        Difficulty = string {}
+        Duration = string {}
+        Effect = string { multiline = true }
+    }
+}
+
+DarkConspiracy = system
+{
+    characters = characterTable
+    creatures = minionTable
+    Weapons = weaponStats
+    Armour = armourStats
+    Equipment = equipmentStats
+    'Empathic Talents' = talentStats
+    description = "Dark Conspiracy, The Unseen War"
+    secondaryTypes = ["Weapons", "Armour", "Equipment", "Empathic Talents"]
+    initiativeCompare (item1, item2) = compare (item1, item2)
+    quickdice = [2d6, 1d6, 3d6]
+}
