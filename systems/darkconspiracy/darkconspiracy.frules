@@ -149,7 +149,7 @@ characterTable = ruleset
         keys = skillNames
         valueType = custom
         {
-            Trained = bool { default = false }
+            Trained = bool { default = true }
             Level = integer { default = 0  minvalue = 0 }
             Characteristic = string { keys = ["", "STR", "DEX", "END", "INT", "EDU", "CHA", "EMP"]  default = ""  editable = live }
             Check = modifier
@@ -230,14 +230,9 @@ characterTable = ruleset
         tableLayout = layout { size = wide }
         valueType = custom
         {
-            Term = integer { default = 1 }
+            Term = string {}
             'Career and Assignment' = string {}
-            Skill = string {}
-            Survived = bool { default = true }
             'Event or Mishap' = string {}
-            Advanced = bool { default = false }
-            Trust = integer { default = 0 }
-            'Dark Influence' = integer { default = 0 }
         }
     }
 
@@ -352,8 +347,18 @@ talentStats = ruleset
     }
 }
 
+darkConspiracyNameSetting = nameSetting
+{
+    name = "Dark Conspiracy"
+    characters = [generator { library = "Spy thriller" variant = "Agent" }, generator { library = "Spy thriller" variant = "Codename" }]
+    creatures = [generator { library = "Cosmic horror" variant = "Entity" }, generator { library = "Spy thriller" variant = "Agent" }]
+    Location = [generator { library = "Spy thriller" variant = "Safehouse" }, generator { library = "Spy thriller" variant = "Operation" }, generator { library = "Spy thriller" variant = "Agency" }, generator { library = "Cosmic horror" variant = "Cult" }]
+}
+
 DarkConspiracy = system
 {
+    libraries = ["/systems/names/spies.json", "/systems/names/cosmic.json"]
+    nameSettings = [darkConspiracyNameSetting]
     characters = characterTable
     creatures = minionTable
     Weapons = weaponStats
