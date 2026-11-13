@@ -1,4 +1,5 @@
 #include "/systems/common.frules"
+#include "/systems/names/settings.frules"
 
 pointsToSkill(points)=
  if points-points/3*3 > 0 then
@@ -474,6 +475,8 @@ forcePowerStats= ruleset
 
 Starwars = system
 {
+    libraries = ["/systems/names/scifi.json"]
+    nameSettings = [spaceNameSetting]
     characters = characterTable
     creatures = characterTable
     Spaceships = spaceshipTable
@@ -486,7 +489,7 @@ Starwars = system
     description="Starwars d6"
     secondaryTypes = ["Ranged weapons","Melee weapons","Armour","Spaceships","Other items","Force powers"]
     extraEntityTypes = [
-      entityTypeDescription("Spaceships","spaceship",true, "/systems/starwars/spaceship-entity.png", ["ShipWeapons"])
+      entityTypeDescription("Spaceships","spaceship",true, "/systems/starwars/spaceship-entity.svg", ["ShipWeapons"])
       ]
     cssFiles = ["/systems/starwars/starwars.css"]
     quickdice =[1d6]

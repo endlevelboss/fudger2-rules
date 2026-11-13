@@ -3,7 +3,6 @@
     {
       "name": "Fudge",
       "location": "/systems/Fudge/fudge.frules",
-      "image": "/systems/Fudge/fudge.jpeg",
       "description": "Simple Fudge rules",
       "extensions": [
         {
@@ -11,12 +10,53 @@
           "location": "/systems/Fudge/extensions/spells.frules",
           "description": "Simple rule-less spells"
         }
+      ],
+      "nameSettings": [
+        "Classic fantasy",
+        "Norse saga",
+        "Modern Norway",
+        "Eastern empire",
+        "Space opera",
+        "Neon streets",
+        "Gothic horror",
+        "Cosmic horror",
+        "Grimdark imperium",
+        "Old world",
+        "Night world",
+        "Desert realms",
+        "Sword and sorcery",
+        "Wasteland",
+        "Weird west",
+        "High seas",
+        "Feudal Japan",
+        "Gaslight",
+        "Blue-collar space",
+        "Mythic Greece",
+        "Arthurian",
+        "Ancient Egypt",
+        "Superheroes",
+        "Spy thriller",
+        "Faerie courts"
       ]
     },
     {
       "name": "DnD 5e",
       "location": "/systems/DND/DND.frules",
-      "description": "Slightly incomplete DND 5e"
+      "description": "Slightly incomplete DND 5e",
+      "nameSettings": [
+        "Classic fantasy",
+        "Norse saga",
+        "Eastern empire",
+        "Gothic horror",
+        "Old world",
+        "Desert realms",
+        "Sword and sorcery",
+        "High seas",
+        "Feudal Japan",
+        "Mythic Greece",
+        "Arthurian",
+        "Faerie courts"
+      ]
     },
     {
       "name": "Torg",
@@ -26,28 +66,63 @@
     {
       "name": "Starwars d6",
       "location": "/systems/starwars/sw.frules",
-      "image": "/systems/starwars/spaceship.png",
-      "description": "A long time ago in a galaxy far, far away"
+      "description": "A long time ago in a galaxy far, far away",
+      "nameSettings": [
+        "Space opera"
+      ]
     },
     {
       "name": "Over The Edge",
       "location": "/systems/edge/edge.frules",
-      "description": "Welcome to Al Amarja"
+      "description": "Welcome to Al Amarja",
+      "nameSettings": [
+        "Night world",
+        "Spy thriller",
+        "Cosmic horror",
+        "Neon streets"
+      ]
     },
     {
       "name": "Mothership",
       "location": "/systems/mothership/mothership.frules",
-      "description": "Sci Fi Horror in Space"
+      "description": "Sci Fi Horror in Space",
+      "nameSettings": [
+        "Blue-collar space",
+        "Grimdark imperium",
+        "Cosmic horror"
+      ]
     },
     {
       "name": "Gurps lite",
       "location": "/systems/Gurps/gurpslite.frules",
-      "description": "Beginnings of gurpslite implementation"
-    },
-    {
-      "name": "Dark Conspiracy",
-      "location": "/systems/darkconspiracy/darkconspiracy.frules",
-      "description": "Dark Conspiracy: The Unseen War (Mongoose 2026)"
+      "description": "Beginnings of gurpslite implementation",
+      "nameSettings": [
+        "Classic fantasy",
+        "Norse saga",
+        "Modern Norway",
+        "Eastern empire",
+        "Space opera",
+        "Neon streets",
+        "Gothic horror",
+        "Cosmic horror",
+        "Grimdark imperium",
+        "Old world",
+        "Night world",
+        "Desert realms",
+        "Sword and sorcery",
+        "Wasteland",
+        "Weird west",
+        "High seas",
+        "Feudal Japan",
+        "Gaslight",
+        "Blue-collar space",
+        "Mythic Greece",
+        "Arthurian",
+        "Ancient Egypt",
+        "Superheroes",
+        "Spy thriller",
+        "Faerie courts"
+      ]
     }
   ]
 }
